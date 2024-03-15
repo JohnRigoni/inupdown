@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Upload</title>
+<style>
+    .inp {
+        display: block;
+        padding: 10px;
+        width: 200px;
+        overflow: min-content;
+    }
+    .flist {
+        border: 2px solid #228B22;
+        border-radius: 8px;
+        padding: 10px 10px;
+    }
+    .progress {
+      width: 100%;
+    }
+</style>
+
+  <script src="/htmx.min.js"></script>
+</head>
+<body>
+    <form id="board" class="flist" hx-put="/contact/1" hx-swap="none" swap="none"
+      hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
+      >
+        <label>File Name</label>
+      <div>
+        <input id="nameinp" type="text" name="name">
+      </div>
+        <label>File Contents</label>
+      <div class="form-group">
+        <input class="inp" type="text" name="content">
+      </div>
+      <button class="btn">Submit</button>
+      <button class="btn" hx-on:click="htmx.find('#board').reset()" >Cancel</button>
+    </form>
+<br>
+    <form id='form' class="flist" hx-encoding='multipart/form-data' hx-post='/upload' hx-swap="none"
+      hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
+      >
+        <input id='browse' type='file' name='file' multiple>
+        <button id="fupb">
+            Upload
+        </button>
+        <progress id='progress' class='progress' value='0' max='100'></progress>
+    </form>
+    <script>
+        htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+          htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+          if (evt.detail.loaded/evt.detail.total == 1) {
+            setTimeout(() => {
+              htmx.find('#progress').setAttribute('value', 0)
+            }, 1000);
+          }
+        });
+    </script>
+    <br>
+    <div id="flist" class="flist" hx-get='/flist' hx-swap="innerHTML" hx-trigger="load,globup" >
+    <div/>
+    </div>
+
+</body>
+</html>
