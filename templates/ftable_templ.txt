@@ -1,0 +1,10 @@
+<tr><td class=\"ticon\">[]</td><td><a href=\"
+\">
+</a></td><td>
+</td><td>
+B</td><td class=\"ticon\"><a href=\"
+\" rel=\"nofollow\" download=\"\">&#10515;</a></td><td class=\"ticon\"><button class=\"delbtn\" hx-get=\"
+\" hx-swap=\"none\" hx-confirm=\"
+\">&#9746;</button></td></tr>
+<div class=\"filebox\"><a href=\"/data/.readme.md\" rel=\"nofollow\" download=\"\">
+</a><br></div>

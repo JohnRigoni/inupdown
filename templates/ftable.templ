@@ -1,0 +1,34 @@
+package templates
+
+type FtblRowsS struct {
+	Link templ.SafeURL
+	DelLink string
+	Name string
+	Date string
+	Size string
+}
+
+templ Hello(items []FtblRowsS) {
+	for _, item := range items {
+		<tr>
+		<td class="ticon">[]</td>
+		<td><a href={ item.Link }>{ item.Name }</a></td>
+		<td>{item.Date[:10]}</td>
+		<td>{item.Size}B</td>
+		<td class="ticon">
+			<a href={ item.Link } rel="nofollow" download="">&#10515;</a>
+		</td>
+		<td class="ticon">
+			<button class="delbtn" hx-get={ item.DelLink } hx-swap="none"
+			hx-confirm={ "Are you sure you would like to delete '" + item.Name + "'?"}
+			>&#9746;</button>
+		</td>
+		</tr>
+	} 
+}
+
+templ FTblRows(name string) {
+	<div class="filebox">
+	<a href="/data/.readme.md" rel="nofollow" download="">{name}</a>
+	<br/></div>
+}

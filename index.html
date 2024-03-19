@@ -19,7 +19,37 @@
     }
     .progress {
       width: 100%;
+      max-width: 900px;
     }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    border-width: 2px;
+  }
+  th, td {
+    border: 0px solid black;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+  .ticon {
+    font-size: 30px ;
+    min-width: 34px;
+    width: 4%;
+    padding: 0px;
+  }
+.delbtn {
+    font-size: 30px ;
+  background: white;
+  border: 0px solid;
+  cursor:pointer;
+  color:red;
+}
 </style>
 
   <script src="/htmx.min.js"></script>
@@ -36,10 +66,12 @@
       <div class="form-group">
         <input class="inp" type="text" name="content">
       </div>
-      <button class="btn">Submit</button>
-      <button class="btn" hx-on:click="htmx.find('#board').reset()" >Cancel</button>
+      <button >Submit</button>
+      <button hx-on:click="htmx.find('#board').reset()" >Cancel</button>
     </form>
-<br>
+
+    <br>
+
     <form id='form' class="flist" hx-encoding='multipart/form-data' hx-post='/upload' hx-swap="none"
       hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
       >
@@ -48,7 +80,26 @@
             Upload
         </button>
         <progress id='progress' class='progress' value='0' max='100'></progress>
+
     </form>
+
+    <br>
+
+    <table id="flist"  hx-get='/flist' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
+      <thead>
+        <tr>
+          <th> </th>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Size</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="ftbody">
+      </tbody>
+    </table>
+
     <script>
         htmx.on('#form', 'htmx:xhr:progress', function(evt) {
           htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
@@ -59,10 +110,6 @@
           }
         });
     </script>
-    <br>
-    <div id="flist" class="flist" hx-get='/flist' hx-swap="innerHTML" hx-trigger="load,globup" >
-    <div/>
-    </div>
 
 </body>
 </html>

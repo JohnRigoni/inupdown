@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  updowninserver:
+  image: updowninserver
+  container_name: updowninserver
+    build: .
+    ports:
+    - '8080:80'
+    restart: unless-stopped

@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"updowninserve/templates"
+
+	"github.com/a-h/templ"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +32,7 @@ func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to parse form", http.StatusInternalServerError)
 		return
 	}
-	// Get the uploaded files
+
 	files := r.MultipartForm.File["file"]
 	for _, fileHeader := range files {
 		file, err := fileHeader.Open()
@@ -36,7 +41,7 @@ func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		defer file.Close()
-		// Create a destination file in the "./data" directory
+
 		destFilePath := filepath.Join("./data", fileHeader.Filename)
 		destFile, err := os.Create(destFilePath)
 		if err != nil {
@@ -64,7 +69,7 @@ func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 func fListHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("flist")
-	dir := "./data" // Directory path
+	dir := "./data"
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		log.Fatalf("Failed to read directory: %v", err)
@@ -73,10 +78,8 @@ func fListHandler(w http.ResponseWriter, r *http.Request) {
 	outp := `<div class="filebox">`
 	for _, file := range files {
 		if file.IsDir() {
-			continue // Skip directories
+			continue
 		}
-
-		// fmt.Println(file.Info())	
 
 		outp += `<a href="/data/` + file.Name() + `" rel="nofollow" download> ` + file.Name() + `</a><br>`
 	}
@@ -93,7 +96,6 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the form data from the request
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Failed to parse form", http.StatusInternalServerError)
@@ -121,12 +123,56 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PUT request processed successfully\n")
 }
 
+func helloH(w http.ResponseWriter, r *http.Request) {
+	dir := "./data"
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatalf("Failed to read directory: %v", err)
+	}
+	items := []templates.FtblRowsS{}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		finfo, _ := file.Info()
+
+		item := templates.FtblRowsS{
+			Link:    templ.SafeURL("/data/" + file.Name()),
+			DelLink: "/del?file=" + file.Name(),
+			Name:    file.Name(),
+			Date:    finfo.ModTime().String(),
+			Size:    strconv.FormatInt(finfo.Size(), 10),
+		}
+		items = append(items, item)
+
+	}
+	comp := templates.Hello(items)
+	comp.Render(context.Background(), w)
+}
+
+func delHandler(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Fatalf("Failed to read directory: %v", err)
+	}
+
+	fmt.Println("got file: ", r.Form["file"])
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "PUT request processed successfully\n")
+}
+
 func main() {
 	http.HandleFunc("/contact/1", contactHandler)
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/upload", fileUploadHandler)
-	http.HandleFunc("/flist", fListHandler)
+	// http.HandleFunc("/flist", fListHandler)
+	http.HandleFunc("/flist", helloH)
+	http.HandleFunc("/del", delHandler)
+	// http.HandleFunc("/hello", helloH)
 
-	fmt.Println("Server listening on port 8000...")
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	fmt.Println("Server listening on port 8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+
+	_ = templ.NopComponent
 }
