@@ -17,14 +17,14 @@ import (
 )
 
 //go:embed assets
-var indexHtml embed.FS
+var assetsFS embed.FS
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	f := r.URL.RequestURI()
-	fmt.Println("Root handled:", f)
+	fmt.Println("indexHandler:", f)
 	if f == "/" {
 		http.ServeFile(w, r, "./assets/index.html")
-		// p, err := indexHtml.ReadFile("assets/index.html")
+		// p, err := assetsFS.ReadFile("assets/index.html")
 		// if err != nil {
 		// 	fmt.Println("index is err")
 		// 	return
@@ -35,8 +35,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "."+f)
 }
 
-func indexHandler2(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Root2 handled2:", r.URL.RequestURI())
+func assetsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("assetsHandler:", r.URL.RequestURI())
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Failed to parse form", http.StatusInternalServerError)
@@ -44,16 +44,13 @@ func indexHandler2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	asset := r.Form.Get("assets")
-	apiRoute := r.Form.Get("api")
-	if asset == "" && apiRoute == "" {
-		http.Error(w, "Both assets and api missing", http.StatusInternalServerError)
+	if asset == "" {
+		http.Error(w, "Query: 'assets' missing", http.StatusInternalServerError)
 		return
 	}
 
-	if asset != "" {
-		file := fmt.Sprint("./assets/", asset)
-		http.ServeFile(w, r, file)
-	}
+	file := fmt.Sprint("./assets/", asset)
+	http.ServeFile(w, r, file)
 }
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,30 +62,28 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	apiRoute := r.Form.Get("api")
-	if  apiRoute == "" {
-		http.Error(w, "api missing", http.StatusInternalServerError)
+	if apiRoute == "" {
+		http.Error(w, "Query: 'api' missing", http.StatusInternalServerError)
 		return
 	}
 
 	switch apiRoute {
 	case "upload":
-		fmt.Println("uploadddd")
+		fmt.Println("uploadddd-api")
 		fileUploadHandler(w, r)
 	case "flist":
-		fmt.Println("flist")
-		helloH(w, r)
+		fmt.Println("flist-api")
+		flistHandler(w, r)
 	case "delete":
-		fmt.Println("delete")
+		fmt.Println("delete-api")
 		delHandler(w, r)
 	case "writef":
-		fmt.Println("writef")
-		contactHandler(w, r)
-
+		fmt.Println("writef-api")
+		writeFileHandler(w, r)
+	default:
+		http.Error(w, "api: "+apiRoute+" not found", http.StatusInternalServerError)
 	}
-
 }
-
-
 
 func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -110,7 +105,7 @@ func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		destFilePath := filepath.Join("./data", fileHeader.Filename)
+		destFilePath := filepath.Join("./", fileHeader.Filename)
 		destFile, err := os.Create(destFilePath)
 		if err != nil {
 			fmt.Println("Failed to create destination file:", err)
@@ -134,7 +129,7 @@ func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File(s) uploaded successfully\n")
 }
 
-func contactHandler(w http.ResponseWriter, r *http.Request) {
+func writeFileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -156,7 +151,7 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		nm += ".txt"
 	}
 
-	filePath := "./data/" + nm
+	filePath := "./" + nm
 	content := r.Form.Get("content") + "\n"
 	err = os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
@@ -167,8 +162,8 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PUT request processed successfully\n")
 }
 
-func helloH(w http.ResponseWriter, r *http.Request) {
-	dir := "./data"
+func flistHandler(w http.ResponseWriter, _ *http.Request) {
+	dir := "./"
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		log.Fatalf("Failed to read directory: %v", err)
@@ -207,15 +202,12 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
 	r := mux.NewRouter()
 
-	r.PathPrefix("/").Queries("assets", "{assets}").Handler(http.HandlerFunc(indexHandler2))
+	r.PathPrefix("/").Queries("assets", "{assets}").Handler(http.HandlerFunc(assetsHandler))
 	r.PathPrefix("/").Queries("api", "{api}").Handler(http.HandlerFunc(apiHandler))
 	r.PathPrefix("/").Handler(http.HandlerFunc(indexHandler))
 
 	fmt.Println("Server listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
-
-	_ = templ.NopComponent
 }
