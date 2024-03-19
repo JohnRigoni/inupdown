@@ -51,11 +51,10 @@
   color:red;
 }
 </style>
--  <script src="/assets/htmx.min.js"></script>
 -  <script src="/?assets=htmx.min.js"></script>
 </head>
 <body>
-    <form id="board" class="flist" hx-put="/contact/1" hx-swap="none" swap="none"
+    <form id="board" class="flist" hx-put="/?api=writef" hx-swap="none" swap="none"
       hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
       >
         <label>File Name</label>
@@ -72,7 +71,7 @@
 
     <br>
 
-    <form id='form' class="flist" hx-encoding='multipart/form-data' hx-post='/upload' hx-swap="none"
+    <form id='form' class="flist" hx-encoding='multipart/form-data' hx-post='/?api=upload' hx-swap="none"
       hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
       >
         <input id='browse' type='file' name='file' multiple>
@@ -85,7 +84,7 @@
 
     <br>
 
-    <table id="flist"  hx-get='/flist' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
+    <table id="flist"  hx-get='/?api=flist' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
       <thead>
         <tr>
           <th> </th>
@@ -99,5 +98,6 @@
       <tbody id="ftbody">
       </tbody>
     </table>
+-  <script src="/?assets=main.js"></script>
 </body>
 </html>

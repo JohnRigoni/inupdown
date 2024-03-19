@@ -35,17 +35,60 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "."+f)
 }
 
-func assetsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Asset handled:", vars["file"])
-	p, err := indexHtml.ReadFile("assets/" + vars["file"])
+func indexHandler2(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Root2 handled2:", r.URL.RequestURI())
+	err := r.ParseForm()
 	if err != nil {
-		fmt.Println("assets is err")
+		http.Error(w, "Failed to parse form", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Add("Content-Type", "application/javascript")
-	w.Write(p)
+
+	asset := r.Form.Get("assets")
+	apiRoute := r.Form.Get("api")
+	if asset == "" && apiRoute == "" {
+		http.Error(w, "Both assets and api missing", http.StatusInternalServerError)
+		return
+	}
+
+	if asset != "" {
+		file := fmt.Sprint("./assets/", asset)
+		http.ServeFile(w, r, file)
+	}
 }
+
+func apiHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("apiHandler:", r.URL.RequestURI())
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parse form: apiHandler", http.StatusInternalServerError)
+		return
+	}
+
+	apiRoute := r.Form.Get("api")
+	if  apiRoute == "" {
+		http.Error(w, "api missing", http.StatusInternalServerError)
+		return
+	}
+
+	switch apiRoute {
+	case "upload":
+		fmt.Println("uploadddd")
+		fileUploadHandler(w, r)
+	case "flist":
+		fmt.Println("flist")
+		helloH(w, r)
+	case "delete":
+		fmt.Println("delete")
+		delHandler(w, r)
+	case "writef":
+		fmt.Println("writef")
+		contactHandler(w, r)
+
+	}
+
+}
+
+
 
 func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -140,7 +183,7 @@ func helloH(w http.ResponseWriter, r *http.Request) {
 
 		item := templates.FtblRowsS{
 			Link:    templ.SafeURL("/" + file.Name()),
-			DelLink: "/del?file=" + file.Name(),
+			DelLink: "/?api=delete&file=" + file.Name(),
 			Name:    file.Name(),
 			Date:    finfo.ModTime().String(),
 			Size:    strconv.FormatInt(finfo.Size(), 10),
@@ -167,15 +210,10 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/contact/1", contactHandler)
-	r.HandleFunc("/assets", assetsHandler)
-	r.HandleFunc("/upload", fileUploadHandler)
-	// r.HandleFunc("/flist", fListHandler)
-	r.HandleFunc("/flist", helloH)
-	r.HandleFunc("/del", delHandler)
-	// r.HandleFunc("/hello", helloH)
-
+	r.PathPrefix("/").Queries("assets", "{assets}").Handler(http.HandlerFunc(indexHandler2))
+	r.PathPrefix("/").Queries("api", "{api}").Handler(http.HandlerFunc(apiHandler))
 	r.PathPrefix("/").Handler(http.HandlerFunc(indexHandler))
+
 	fmt.Println("Server listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 
