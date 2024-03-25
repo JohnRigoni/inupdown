@@ -1,7 +1,8 @@
 package templates
 
 type FtblRowsS struct {
-	Link templ.SafeURL
+	RawLink templ.SafeURL
+	DownLink templ.SafeURL
 	DelLink string
 	Name string
 	Date string
@@ -12,11 +13,11 @@ templ Hello(items []FtblRowsS) {
 	for _, item := range items {
 		<tr>
 		<td class="ticon">[]</td>
-		<td><a href={ item.Link }>{ item.Name }</a></td>
+		<td><a href={ item.RawLink }>{ item.Name }</a></td>
 		<td>{item.Date[:10]}</td>
 		<td>{item.Size}B</td>
 		<td class="ticon">
-			<a href={ item.Link } rel="nofollow" download="">&#10515;</a>
+			<a href={ item.DownLink } rel="nofollow" download="">&#10515;</a>
 		</td>
 		<td class="ticon">
 			<button class="delbtn" hx-get={ item.DelLink } hx-swap="none"
@@ -31,4 +32,17 @@ templ FTblRows(name string) {
 	<div class="filebox">
 	<a href="/data/.readme.md" rel="nofollow" download="">{name}</a>
 	<br/></div>
+}
+
+templ RawFile(name string, content string) {
+
+	<html>
+	<head>
+		<title>{ name }</title>
+		<link rel="stylesheet" href="/?assets=plaintext.css" />
+	</head>
+	<body>
+		<pre>{ content }/</pre>
+	</body>
+	</html>
 }

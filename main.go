@@ -80,6 +80,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	case "writef":
 		fmt.Println("writef-api")
 		writeFileHandler(w, r)
+	case "raw":
+		fmt.Println("raw-api")
+		rawHandler(w, r)
 	default:
 		http.Error(w, "api: "+apiRoute+" not found", http.StatusInternalServerError)
 	}
@@ -173,22 +176,54 @@ func flistHandler(w http.ResponseWriter, _ *http.Request) {
 		if file.IsDir() {
 			continue
 		}
-
 		finfo, _ := file.Info()
 
 		item := templates.FtblRowsS{
-			Link:    templ.SafeURL("/" + file.Name()),
+			RawLink:    templ.SafeURL("/?api=raw&file=" + file.Name()),
+			DownLink:    templ.SafeURL("/" + file.Name()),
 			DelLink: "/?api=delete&file=" + file.Name(),
 			Name:    file.Name(),
 			Date:    finfo.ModTime().String(),
 			Size:    strconv.FormatInt(finfo.Size(), 10),
 		}
 		items = append(items, item)
-
 	}
+
 	comp := templates.Hello(items)
 	comp.Render(context.Background(), w)
 }
+
+func rawHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("rawHandler:", r.URL.RequestURI())
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Failed to parrse form", http.StatusInternalServerError)
+		return
+	}
+
+	filename := r.Form.Get("file")
+	if filename == "" {
+		http.Error(w, "Query: 'file' missing", http.StatusInternalServerError)
+		return
+	}
+
+	// open the file and store it as text
+	file, err := os.Open(filename)
+	if err != nil {
+		http.Error(w, "Failed to open file", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+	contentbytes, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		return
+	}
+
+	comp := templates.RawFile(filename, string(contentbytes))
+	comp.Render(context.Background(), w)
+}
+	
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()

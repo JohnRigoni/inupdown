@@ -1,3 +1,5 @@
 tmp/
 data/
 node_modules/
+tmux.sh
+

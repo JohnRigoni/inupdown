@@ -8,3 +8,6 @@ B</td><td class=\"ticon\"><a href=\"
 \">&#9746;</button></td></tr>
 <div class=\"filebox\"><a href=\"/data/.readme.md\" rel=\"nofollow\" download=\"\">
 </a><br></div>
+<html><head><title>
+</title><link rel=\"stylesheet\" href=\"/?assets=plaintext.css\"></head><body><pre>
+/</pre></body></html>

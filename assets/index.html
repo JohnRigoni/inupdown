@@ -10,66 +10,99 @@
   <script src="/?assets=htmx.min.js"></script>
 </head>
 <body>
-    <main class="flex-1 flex flex-col p-4 gap-4">
-    <form id="board" class="grid gap-2"  hx-put="/?api=writef" hx-swap="none" swap="none"
-      hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
+<main class="flex-1 flex flex-col p-4 gap-4">
+  <form id="board" class="grid gap-2"  hx-put="/?api=writef" hx-swap="none" swap="none"
+    hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
+    >
+    <div class="grid gap-2">
+      <input
+        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        placeholder="File Name"
+        id="filename"
+        name="filename"
+        type="text"
+      />
+      <textarea
+        class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
+        placeholder="File Contents"
+        id="filecontents"
+        name="filecontents"
+        type="text"
+      ></textarea>
+    </div>
+
+    <div class="grid gap-2 grid-flow-col">
+      <button class="col-span-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+      hx-on:click="htmx.find('#board').reset()"
       >
-        <div class="grid gap-2">
-          <input
-            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="File Name"
-            id="filename"
-            name="filename"
-            type="text"
-          />
-          <textarea
-            class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[100px]"
-            placeholder="File Contents"
-            id="filecontents"
-            name="filecontents"
-            type="text"
-          ></textarea>
-        </div>
-        <div class="grid gap-2 grid-flow-col">
-          <button class="col-span-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-          hx-on:click="htmx.find('#board').reset()"
-          >
-            Clear
-          </button>
-          <button class="col-span-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          type="submit"
-            >
-            Submit
-          </button>
-        </div>
-    </form>>
-    <br>
+        Clear
+      </button>
+      <button class="col-span-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+      type="submit"
+        >
+        Submit
+      </button>
+    </div>
+  </form>
+  <br>
 
-    <form id='form' class="flist" hx-encoding='multipart/form-data' hx-post='/?api=upload' hx-swap="none"
-      hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
-      >
-        <input id='browse' type='file' name='file' multiple>
-        <button id="fupb">Upload</button>
-        <progress id='progress' class='progress' value='0' max='100'></progress>
-    </form>
+  <a role="button" hx-on:click="handleSubmit()"
+    class="grid w-full p-4 border rounded-lg items-center gap-4 hover:bg-accent hover:text-accent-foreground">
+    <svg xmlns="http://www.w3.org/2000/svg"
+      width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="17 8 12 3 7 8"></polyline>
+      <line x1="12" x2="12" y1="3" y2="15"></line>
+    </svg>
+    <div class="grid gap-1.5">
+      <h2 class="text-lg font-semibold">Upload a file</h2>
+      <p class="text-sm leading-none">
+        Drag and drop your file here or select a file from your computer
+      </p>
+    </div>
+  </a>
 
-    <br>
+  <br>
 
-    <table id="flist"  hx-get='/?api=flist' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
-      <thead>
-        <tr>
-          <th> </th>
-          <th>Name</th>
-          <th>Date</th>
-          <th>Size</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="ftbody">
-      </tbody>
-    </table>
-    </main>
--  <script src="/?assets=main.js"></script>
+  <table id="flist"  hx-get='/?api=flist' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
+    <thead>
+      <tr>
+        <th> </th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Size</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="ftbody">
+    </tbody>
+  </table>
+
+
+      <!--   <div class="grid grid-flow-col items-center gap-2"> -->
+      <!--   <div class="flex flex-row items-center gap-2"> -->
+      <!--     <div class="grid gap-1 flex-grow"> -->
+      <!--       <h3 class="font-semibold overflow-hidden">Wireframes.zippppppppppppppppppp</h3> -->
+      <!--       <p class="text-sm">ZIP archive</p> -->
+      <!--     </div> -->
+      <!---->
+      <!--     <div class="grid gap-1 whitespace-nowrap"> -->
+      <!--       <span class="text-sm">4.2MB</span> -->
+      <!--       <span class="text-sm">1 week ago</span> -->
+      <!--     </div> -->
+      <!---->
+      <!--     <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground w-8 h-8" data-id="92"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" data-id="93"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg><span class="sr-only" data-id="94">Download</span></button> -->
+      <!---->
+      <!--     <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground w-8 h-8" data-id="63"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" data-id="64"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg><span class="sr-only" data-id="65">Delete</span></button> -->
+      <!--   </div> -->
+      <!-- </div> -->
+      <!-- </div> -->
+
+
+
+  </main>
+  <script src="/?assets=main.js"></script>
 </body>
 </html>
