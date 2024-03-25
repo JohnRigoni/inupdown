@@ -43,23 +43,6 @@
           </button>
         </div>
     </form>>
-
-
-    <form id="board" class="flist" hx-put="/?api=writef" hx-swap="none" swap="none"
-      hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
-      >
-      <label>File Name</label>
-      <div>
-        <input id="nameinp" type="text" name="name">
-      </div>
-      <label>File Contents</label>
-      <div class="form-group">
-        <input class="inp" type="text" name="content">
-      </div>
-      <button >Submit</button>
-      <button hx-on:click="htmx.find('#board').reset()" >Cancel</button>
-    </form>
-
     <br>
 
     <form id='form' class="flist" hx-encoding='multipart/form-data' hx-post='/?api=upload' hx-swap="none"
