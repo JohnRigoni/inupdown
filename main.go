@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"fmt"
 	"inupdown/templates"
@@ -22,14 +21,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	f := r.URL.RequestURI()
 	fmt.Println("indexHandler:", f)
 	if f == "/" {
-		http.ServeFile(w, r, "./assets/index.html")
-		// p, err := assetsFS.ReadFile("assets/index.html")
-		// if err != nil {
-		// 	fmt.Println("index is err")
-		// 	return
-		// }
-		// w.Write(p)
-		// return
+		// http.ServeFile(w, r, "./assets/index.html")
+		p, err := assetsFS.ReadFile("assets/index.html")
+		if err != nil {
+			fmt.Println("index is err")
+			return
+		}
+		w.Write(p)
+		return
 	}
 	http.ServeFile(w, r, "."+f)
 }
@@ -48,8 +47,27 @@ func assetsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file := fmt.Sprint("./assets/", asset)
-	http.ServeFile(w, r, file)
+	// file := fmt.Sprint("./assets/", asset)
+	// http.ServeFile(w, r, file)
+
+	p, err := assetsFS.ReadFile("assets/" + asset)
+	if err != nil {
+		fmt.Println("index is err")
+		return
+	}
+
+
+
+	atype := filepath.Ext(asset)[1:]
+	fmt.Println("atype: ", atype)
+	if atype == "js" {
+		atype = "javascript"
+	}
+
+	fmt.Println("atype2: ", atype)
+
+	w.Header().Set("Content-Type", "text/" + atype)
+	w.Write(p)
 }
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
@@ -164,12 +182,13 @@ func writeFileHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PUT request processed successfully\n")
 }
 
-func flistHandler(w http.ResponseWriter, _ *http.Request) {
+func flistHandler(w http.ResponseWriter, r *http.Request) {
 	dir := "./"
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		log.Fatalf("Failed to read directory: %v", err)
 	}
+
 	items := []templates.FtblRowsS{}
 	for _, file := range files {
 		if file.IsDir() {
@@ -188,9 +207,18 @@ func flistHandler(w http.ResponseWriter, _ *http.Request) {
 		}
 		items = append(items, item)
 	}
+	fmt.Println("got items: ", items)
 
 	comp := templates.Hello(items)
-	comp.Render(context.Background(), w)
+	if comp == nil {
+		fmt.Println("comp is nil")
+		return
+	}
+
+	err = comp.Render(r.Context(), w)
+	if err != nil {
+		log.Fatalf("Failed to render template: %v", err)
+	}
 }
 
 func computeByteString(bytes int64) string {
@@ -201,7 +229,7 @@ func computeByteString(bytes int64) string {
 		if bytes < 1000 {
 			output = fmt.Sprintf("%d%s", bytes, s)
 			return output
-			}
+		}
 		bytes = bytes / 1000
 	}
 
@@ -256,5 +284,5 @@ func main() {
 	r.PathPrefix("/").Handler(http.HandlerFunc(indexHandler))
 
 	fmt.Println("Server listening on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8088", r))
 }

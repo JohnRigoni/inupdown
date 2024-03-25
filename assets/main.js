@@ -1,13 +1,13 @@
-
-htmx.on('#form', 'htmx:xhr:progress', function(evt) {
-  htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
-  if (evt.detail.loaded/evt.detail.total == 1) {
-    setTimeout(() => {
-      htmx.find('#progress').setAttribute('value', 0)
-    }, 1000);
-  }
-});
-
+//
+// htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+//   htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+//   if (evt.detail.loaded/evt.detail.total == 1) {
+//     setTimeout(() => {
+//       htmx.find('#progress').setAttribute('value', 0)
+//     }, 1000);
+//   }
+// });
+//
 let global_is_uploading = false;
 async function handleSubmit(_) {
     if (global_is_uploading) {
