@@ -4,13 +4,12 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"inupdown/templates"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
-	"inupdown/templates"
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/mux"
@@ -177,20 +176,36 @@ func flistHandler(w http.ResponseWriter, _ *http.Request) {
 			continue
 		}
 		finfo, _ := file.Info()
+		size := computeByteString(finfo.Size())
 
 		item := templates.FtblRowsS{
-			RawLink:    templ.SafeURL("/?api=raw&file=" + file.Name()),
-			DownLink:    templ.SafeURL("/" + file.Name()),
-			DelLink: "/?api=delete&file=" + file.Name(),
-			Name:    file.Name(),
-			Date:    finfo.ModTime().String(),
-			Size:    strconv.FormatInt(finfo.Size(), 10),
+			RawLink:  templ.SafeURL("/?api=raw&file=" + file.Name()),
+			DownLink: templ.SafeURL("/" + file.Name()),
+			DelLink:  "/?api=delete&file=" + file.Name(),
+			Name:     file.Name(),
+			Date:     finfo.ModTime().Format("Jan 2"),
+			Size:     size,
 		}
 		items = append(items, item)
 	}
 
 	comp := templates.Hello(items)
 	comp.Render(context.Background(), w)
+}
+
+func computeByteString(bytes int64) string {
+	output := ""
+	suffixes := []string{"B", "KB", "MB", "GB", "TB"}
+
+	for _, s := range suffixes {
+		if bytes < 1000 {
+			output = fmt.Sprintf("%d%s", bytes, s)
+			return output
+			}
+		bytes = bytes / 1000
+	}
+
+	return fmt.Sprintf("%d%s", bytes, "PB")
 }
 
 func rawHandler(w http.ResponseWriter, r *http.Request) {
@@ -207,7 +222,6 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// open the file and store it as text
 	file, err := os.Open(filename)
 	if err != nil {
 		http.Error(w, "Failed to open file", http.StatusInternalServerError)
@@ -220,10 +234,9 @@ func rawHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	comp := templates.RawFile(filename, string(contentbytes))
-	comp.Render(context.Background(), w)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, string(contentbytes))
 }
-	
 
 func delHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
