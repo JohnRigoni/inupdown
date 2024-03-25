@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"updowninserve/templates"
+	"inupdown/templates"
 
 	"github.com/a-h/templ"
 	"github.com/gorilla/mux"
@@ -39,7 +39,7 @@ func assetsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("assetsHandler:", r.URL.RequestURI())
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Failed to parse form", http.StatusInternalServerError)
+		http.Error(w, "Failed to run ParseForm: assetsHandler", http.StatusInternalServerError)
 		return
 	}
 
@@ -146,13 +146,13 @@ func writeFileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	nm := r.Form.Get("name")
+	nm := r.Form.Get("filename")
 	if len(nm) <= 4 || nm[len(nm)-4:] != ".txt" {
 		nm += ".txt"
 	}
 
 	filePath := "./" + nm
-	content := r.Form.Get("content") + "\n"
+	content := r.Form.Get("filecontents") + "\n"
 	err = os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
 		log.Fatalf("Failed to write to file: %v", err)
@@ -203,7 +203,6 @@ func delHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter()
-
 	r.PathPrefix("/").Queries("assets", "{assets}").Handler(http.HandlerFunc(assetsHandler))
 	r.PathPrefix("/").Queries("api", "{api}").Handler(http.HandlerFunc(apiHandler))
 	r.PathPrefix("/").Handler(http.HandlerFunc(indexHandler))

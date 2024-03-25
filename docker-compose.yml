@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  updowninserver:
-  image: updowninserver
-  container_name: updowninserver
+  inupdown:
+  image: inupdown
+  container_name: inupdown
     build: .
     ports:
     - '8080:80'
