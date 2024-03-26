@@ -2,7 +2,8 @@
 module.exports = {
   content: [
     "./assets/index.html",
-    "./templates/*.templ"],
+    "./internal/templates/*.templ"
+  ],
   theme: {
     extend: {
       colors: {
