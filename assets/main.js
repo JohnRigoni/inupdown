@@ -35,7 +35,7 @@ async function input_auto_submit(input) {
         };
         let response;
         try {
-            response = await fetch("/?api=upload", fetchOptions);
+            response = await fetch("/api/upload?internal=true", fetchOptions);
         }
         catch (e) {
             window.alert("Error: " + e);

@@ -1,7 +1,9 @@
 assets/tstyle.css
 internal/api/templates/**_templ.go
+internal/api/templates/**_templ.txt
 tmp/
 node_modules/
+.env
 
 tmux.sh
 .air.toml

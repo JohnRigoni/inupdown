@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
+func FileUploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

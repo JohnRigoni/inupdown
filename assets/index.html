@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Message Upload</title>
-  <link rel="icon" type="image/x-icon" href="/?assets=favicon.ico">
-  <link rel="stylesheet" href="/?assets=tstyle.css">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico?internal=true">
+  <link rel="stylesheet" href="/assets/tstyle.css?internal=true">
   <!-- <link rel="stylesheet" href="/?assets=style.css"> -->
-  <script src="/?assets=htmx.min.js"></script>
+  <script src="/assets/htmx.min.js?internal=true"></script>
 </head>
 <body>
 <main class="flex-1 flex flex-col p-4 gap-4">
-  <form id="board" class="grid gap-2"  hx-put="/?api=writef" hx-swap="none" swap="none"
+  <form id="board" class="grid gap-2"  hx-put="/api/writef?internal=true" hx-swap="none" swap="none"
     hx-on::after-request=" if(event.detail.successful) this.reset(); htmx.trigger('#flist', 'globup')"
     >
     <div class="grid gap-2">
@@ -65,7 +65,7 @@
 
   <br>
 
-  <table id="flist" hx-get='/?api=flist' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
+  <table id="flist" hx-get='/api/flist?internal=true' hx-target="#ftbody" hx-swap="innerHTML" hx-trigger="load,globup">
     <thead>
       <tr>
         <th> </th>
@@ -81,6 +81,6 @@
   </table>
 
   </main>
-  <script src="/?assets=main.js"></script>
+  <script src="/assets/main.js?internal=true"></script>
 </body>
 </html>

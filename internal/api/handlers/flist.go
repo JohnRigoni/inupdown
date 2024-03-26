@@ -11,7 +11,7 @@ import (
 	"github.com/a-h/templ"
 )
 
-func flistHandler(w http.ResponseWriter, r *http.Request) {
+func FlistHandler(w http.ResponseWriter, r *http.Request) {
 	dir := "./"
 	files, err := os.ReadDir(dir)
 	if err != nil {
@@ -27,9 +27,9 @@ func flistHandler(w http.ResponseWriter, r *http.Request) {
 		size := computeByteString(finfo.Size())
 
 		item := templates.FtblRowsS{
-			RawLink:  templ.SafeURL("/?api=raw&file=" + file.Name()),
+			RawLink:  templ.SafeURL("/api/raw?internal=true&file=" + file.Name()),
 			DownLink: templ.SafeURL("/" + file.Name()),
-			DelLink:  "/?api=delete&file=" + file.Name(),
+			DelLink:  "/api/delete?internal=true&file=" + file.Name(),
 			Name:     file.Name(),
 			Date:     finfo.ModTime().Format("Jan 2"),
 			Size:     size,

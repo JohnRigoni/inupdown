@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func delHandler(w http.ResponseWriter, r *http.Request) {
+func DelHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		log.Fatalf("Failed to read directory: %v", err)

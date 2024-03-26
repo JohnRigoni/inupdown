@@ -8,7 +8,7 @@ import (
 )
 
 
-func rawHandler(w http.ResponseWriter, r *http.Request) {
+func RawHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("rawHandler:", r.URL.RequestURI())
 	err := r.ParseForm()
 	if err != nil {
